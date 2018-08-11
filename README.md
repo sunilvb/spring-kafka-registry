@@ -20,11 +20,11 @@ Avro provides:
 
 This is a tutorial for creating a simple Spring Boot application with Kafka and Schema Registry.
 The following topics are covered in this tutorial:
-1. Working with Stellar Java SDK
-2. Creating a Stellar Bank UI using Spring Boot, Spring Security and MySql
-3. Open an Account and fund 10,000 XLM 
-4. Open another account and transfer 100 XLM (or any amount)from one account to another
-5. View account details and blalances
+1. Working with Confluent.io components
+2. Creating a Kafka Avro Producer using Spring Boot
+3. Creating Avro schema and generating Java classes  
+4. A REST interface to send messages to a Kafka topic with Avro schema
+5. View the messages from a Kafka Avro Consumer
 
 ## Getting Started
 
