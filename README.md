@@ -6,7 +6,7 @@ According to [Confluent.io](https://docs.confluent.io/current/schema-registry/do
 
 ## What is Avro?
 
-According to [Avro.Apache.org/](https://avro.apache.org/docs/current/) : Apache Avro™ is a data serialization system.
+According to [Avro.Apache.org](https://avro.apache.org/docs/current/) : Apache Avro™ is a data serialization system.
 
 Avro provides:
 
@@ -28,7 +28,7 @@ The following topics are covered in this tutorial:
 
 ## Getting Started
 
-![alt text](docs/Stellar.jpg)
+![alt text](docs/SchemaRegistry.jpg)
 
 Most applications interact with the Stellar network through Horizon, a RESTful HTTP API server. Horizon gives you a straightforward way to submit transactions, check accounts, and subscribe to events. The Java Stellar Sdk library provides APIs to build transactions and connect to Horizon.
 
