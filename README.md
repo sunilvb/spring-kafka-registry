@@ -51,11 +51,42 @@ git clone https://github.com/sunilvb/spring-kafka-registry.git
 
 cd spring-kafka-registry
 
-mvn clean package
 
 ```
+First things first. Let's look at the maven dependencies that are perticularly important in this sample.
 
-Let's look at the source code. 
+The two important sections that make all the magic happen are the Spring Kafka related dependencies and the Avro related dependencies as shown below :
+```
+<!-- spring-kafka dependencies -->
+<dependency>
+	<groupId>org.springframework.kafka</groupId>
+	<artifactId>spring-kafka</artifactId>
+	<version>${spring-kafka.version}</version>
+</dependency>
+<dependency>
+	<groupId>org.springframework.kafka</groupId>
+	<artifactId>spring-kafka-test</artifactId>
+	<version>${spring-kafka.version}</version>
+	<scope>test</scope>
+</dependency> 
+```
+And ...
+
+```
+<!-- avro dependencies -->
+<dependency>
+	<groupId>org.apache.avro</groupId>
+	<artifactId>avro</artifactId>
+	<version>${avro.version}</version>
+</dependency>
+<dependency>
+	<groupId>io.confluent</groupId>
+	<artifactId>kafka-avro-serializer</artifactId>
+	<version>${confluent.version}</version>
+</dependency>
+```
+We will revisit these components later but first let's look at the Avro schema file in the source code. 
+
 Open the order.avsc file from src\main\resources\avro
 
 ```
@@ -77,7 +108,7 @@ Open the order.avsc file from src\main\resources\avro
      ]
 }
 ```
-This is a simple Avro Schema file that describes the Order message structure.
+This is a simple Avro Schema file that describes the Order message structure with various data types.
 
 Following are the two types of data types supported in Avro:
 
@@ -85,7 +116,12 @@ Primitive type: Primitive type are used to define the data types of fields in ou
 
 Complex type: We could also use these six complex data types supported in Avro to define our schema: records, enums, arrays, maps, unions and fixed. In our Order example, we are using the 'record' complex type to define order message.
 
-Once we define the schema, we then generate the Java source code using the maven plugin:
+### Generate classes from Avro schema files
+
+Once we define the schema, we then generate the Java source code using the maven plugin.
+
+Let's open the pom.xml file from the root of the project 
+
 ```
 <plugin>
 	<groupId>org.apache.avro</groupId>
@@ -106,7 +142,10 @@ Once we define the schema, we then generate the Java source code using the maven
 </plugin>
 			
 ```
+Notice the sourceDirectory and outputDirectory locations defiled in the configuration section of the avro-maven-plugin
+
 The following command in maven lifecycle phase will do the trick and put the generated classes in : 
+
 spring-kafka-registry\target\generated\avro\
 
 ```
@@ -114,11 +153,26 @@ mvn generate-sources
 ```
 
 The generated source code comes in very handy to process messages in our application.
-Let's see how this is done.
-Opent the maind application class SpringKafkaRegistryApplication.java from:
-spring-kafka-registry\src\main\java\com\sunilvb\demo
-Notice that   
+Now let's see how this is done.
+Opent the maind application class defined in the source file SpringKafkaRegistryApplication.java from following location:
 
+spring-kafka-registry\src\main\java\com\sunilvb\demo
+
+Notice that we properties that are defined to ensure we are able to interact with the Kafka and Schema Registry instances  
+```
+Properties properties = new Properties();
+// Kafka Properties
+properties.setProperty("bootstrap.servers", bootstrap);
+properties.setProperty("acks", "all");
+properties.setProperty("retries", "10");
+// Avro properties
+properties.setProperty("key.serializer", StringSerializer.class.getName());
+properties.setProperty("value.serializer", KafkaAvroSerializer.class.getName());
+properties.setProperty("schema.registry.url", registry);
+```
+In addition to the bootstrap server and the schema registry url, we are also setting the serializer classes for key and value properties.
+
+We pass the 			
 We can then compile and build the jar file and create a docker container as below:
 
 ```
