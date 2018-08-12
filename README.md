@@ -288,7 +288,7 @@ kafka-avro-console-consumer --topic <name of your kafka topic> \
 ```
 You should see a similar out put in your terminal window :
 
-![alt text](docs/output1.jpg) 
+![alt text](docs/output3.jpg) 
 
 ### Bring down the application and containers
 ```
