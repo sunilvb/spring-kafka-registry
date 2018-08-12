@@ -34,7 +34,7 @@ The following topics are covered in this tutorial:
 
 ![alt text](docs/SchemaRegistry.jpg)
 
-In our sample application we will build a Spring Boot microservice that produces messages and uses Avro to serialize messages and push them into Kafka.
+In our sample application we will build a Spring Boot microservice that produces messages and uses Avro to serialize and push them into Kafka.
 For this tutorial we will be using the open source components of confluent platform. All of our microservices and infrastructure components will be dockerized and run using docker-compose.  
 
 
@@ -52,14 +52,12 @@ Clone this repo to your machine and change directory to spring-kafka-registry. B
 git clone https://github.com/sunilvb/spring-kafka-registry.git
 
 cd spring-kafka-registry
-
-
 ```
 First things first. 
 
 Let's open the pom.xml file and look at the maven dependencies that are perticularly important in this sample.
 
-The two important sections that make all the magic happen are the Spring Kafka related dependencies and the Avro related dependencies as shown below :
+The two important sections that help in makeing the magic happen are the Spring Kafka related dependencies and the Avro related dependencies as shown below :
 ```
 <!-- spring-kafka dependencies -->
 <dependency>
@@ -265,6 +263,7 @@ This will produce the Order message and serialize it into Avro format and pushed
 
 You should see the following output in your browser window or the terminal if you user curl to confirm the message was poseted to Kafka topic: 
 
+![alt text](docs/output3.jpg)
 
 ### Checking the message in Kafka Avro Consumer
 
@@ -286,9 +285,9 @@ kafka-avro-console-consumer --topic <name of your kafka topic> \
     --property schema.registry.url=http://schema-registry:8081 \
     --from-beginning
 ```
-You should see a similar out put in your browser window :
+You should see a similar output in your browser window :
 
-![alt text](docs/output3.jpg) 
+![alt text](docs/output4.jpg) 
 
 ### Bring down the application and containers
 ```
