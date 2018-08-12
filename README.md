@@ -2,7 +2,11 @@
 
 ## What is Schema Registry?
 
-According to [Confluent.io](https://docs.confluent.io/current/schema-registry/docs/index.html) : Schema Registry is part of the Confluent Open Source and Confluent Enterprise distributions. The Schema Registry stores a versioned history of all schemas and allows for the evolution of schemas according to the configured compatibility settings and expanded Avro support.
+According to [Confluent.io](https://docs.confluent.io/current/schema-registry/docs/index.html) : The Schema Registry stores a versioned history of all schemas and allows for the evolution of schemas according to the configured compatibility settings and expanded Avro support.
+
+## Why do we need a Schema Registry?
+
+Simply put, we want to avoid garbage-in-garbage-out scenarios. Schema Registry enables message producers to comply to a JSON schema and avoid producers from pushing message that are bad in to topics. This saves a lot of headache for down-stream consumer. Schema Registry is a critical component in enforcing data governance in a messaging platform. 
 
 ## What is Avro?
 
@@ -30,18 +34,90 @@ The following topics are covered in this tutorial:
 
 ![alt text](docs/SchemaRegistry.jpg)
 
-Most applications interact with the Stellar network through Horizon, a RESTful HTTP API server. Horizon gives you a straightforward way to submit transactions, check accounts, and subscribe to events. The Java Stellar Sdk library provides APIs to build transactions and connect to Horizon.
-
-For this tutorial we will be using the test network :  https://horizon-testnet.stellar.org. 
-The test network allows us to create new accounts and seed them with 10,000 Lumens(XLM) to play with.
-
-### Download the SDK 
-
-Download the SDK from [Stellar.org](https://github.com/stellar/java-stellar-sdk) to your local file system.
-
-Notice that this a jar file that needs to be imported into your local Maven repo before we can use it in our project as a dependency.
+In our sample application we will build a Spring Boot microservice that produces messages and uses Avro to serialize messages and push them into Kafka.
+For this tutorial we will be using the open source components of confluent platform. All of our microservices and infrastructure components will be dockerized and run using docker-compose.  
 
 
+### Get the code and tools
+
+Download and install Maven from https://maven.apache.org/download.cgi
+Download and install JDK 1.8 from http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+Clone this repo to your machine and change directory to spring-kafka-registry. Build the docker image referenced in the compose file
+
+```
+git clone https://github.com/sunilvb/spring-kafka-registry.git
+
+cd spring-kafka-registry
+
+mvn clean package
+
+```
+
+Let's look at the source code. 
+Open the order.avsc file from src\main\resources\avro
+
+```
+{
+     "type": "record",
+     "namespace": "com.sunilvb.demo",
+     "name": "Order",
+     "version": "1",
+     "fields": [
+       { "name": "order_id", "type": "string", "doc": "Id of the order filed" },
+       { "name": "customer_id", "type": "string", "doc": "Id of the customer" },
+       { "name": "supplier_id", "type": "string", "doc": "Id of the supplier" },
+       { "name": "first_name", "type": "string", "doc": "First Name of Customer" },
+       { "name": "last_name", "type": "string", "doc": "Last Name of Customer" },
+       { "name": "items", "type": "int", "doc": "Totla number of items in the order" },
+       { "name": "price", "type": "float", "doc": "Total price of the order" },
+       { "name": "weight", "type": "float", "doc": "Weight of the items" },
+       { "name": "automated_email", "type": "boolean", "default": true, "doc": "Field indicating if the user is enrolled in marketing emails" }
+     ]
+}
+```
+This is a simple Avro Schema file that describes the Order message structure.
+Following are the two types of data supported in Avro:
+
+Primitive type: Primitive type are used to define the data types of fields in our message schema. All premetive types are supported in Avro. In our Order example, we are using string, int, float in the Order message schema.
+Complex type: We could also use these six complex data types supported in Avro to define our schema: records, enums, arrays, maps, unions and fixed. In our Order example, we are using the 'record' complex type to define order message.
+
+Once we define the schema, we then generate the Java source code from the schema using the maven plugin:
+```
+<plugin>
+				<groupId>org.apache.avro</groupId>
+				<artifactId>avro-maven-plugin</artifactId>
+				<version>${avro.version}</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>schema</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+							<outputDirectory>${project.build.directory}/generated/avro</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+```
+The following command in maven lifecycle phase will do the trick and put the generated classes in : spring-kafka-registry\target\generated\avro\
+
+```
+mvn generate-sources
+```
+
+We can then compile and build the jar file and create a docker container as below:
+
+```
+mvn package
+
+mv target/*.jar app.jar
+ 
+docker build -t spring-kafka-registry .
+```
 ### Import the jar into your local Maven repo
 
 Use the following command to import the SDK jar file into your Maven repo:
@@ -181,12 +257,10 @@ After we create and seed the account we can query the network to get the upto da
 
 ## Built With
 
-* [Stellar SDK](https://github.com/stellar/java-stellar-sdk) - Stellar's Java SDK
 * [Spring Boot](https://projects.spring.io/spring-boot/) - The web framework used
-* [Spring Security](https://projects.spring.io/spring-security/) - User authentication
-* [Spring Data JPA](https://projects.spring.io/spring-data-jpa//) - Data access layer
+* [Apache Kafka](https://maven.apache.org/) - Dependency Management
+* [Confluent Schema Registry](https://maven.apache.org/) - Dependency Management
 * [Maven](https://maven.apache.org/) - Dependency Management
-* [MySql](https://rometools.github.io/rome/) - RDBMS
 
 ## Contributing
 

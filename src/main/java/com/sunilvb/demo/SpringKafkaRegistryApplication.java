@@ -34,26 +34,24 @@ public class SpringKafkaRegistryApplication {
 	}
 	
 	@RequestMapping("/orders")
-	public String startit(@RequestParam(value="name", defaultValue="Order-avro") String name, @RequestParam(value="count", defaultValue="1") String count)
+	public String doIt(@RequestParam(value="name", defaultValue="Order-avro") String name, @RequestParam(value="count", defaultValue="1") String count)
 	{
 		
 		String ret=name;
 		try
 		{
-		
 			ret += "<br>Using Bootstrap : " + bootstrap;
 			ret += "<br>Using Bootstrap : " + registry;
 			
 			Properties properties = new Properties();
-			// normal producer
+			// Kafka Properties
 			properties.setProperty("bootstrap.servers", bootstrap);
 			properties.setProperty("acks", "all");
 			properties.setProperty("retries", "10");
-			// avro part
+			// Avro properties
 			properties.setProperty("key.serializer", StringSerializer.class.getName());
 			properties.setProperty("value.serializer", KafkaAvroSerializer.class.getName());
 			properties.setProperty("schema.registry.url", registry);
-
 			
 			ret += sendMsg(properties, name);
 		}
@@ -77,8 +75,7 @@ public class SpringKafkaRegistryApplication {
                 .setWeight(75f)
                 .build();
 
-        ProducerRecord<String, Order> producerRecord = new ProducerRecord<String, Order>(
-                topic, order);
+        ProducerRecord<String, Order> producerRecord = new ProducerRecord<String, Order>(topic, order);
 
         
         producer.send(producerRecord, new Callback() {
