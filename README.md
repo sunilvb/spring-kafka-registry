@@ -40,8 +40,9 @@ For this tutorial we will be using the open source components of confluent platf
 
 ### Get the code and tools
 
-Download and install Maven from https://maven.apache.org/download.cgi
-Download and install JDK 1.8 from http://www.oracle.com/technetwork/java/javase/downloads/index.html
+-Download and install Maven from https://maven.apache.org/download.cgi
+
+-Download and install JDK 1.8 from http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 Clone this repo to your machine and change directory to spring-kafka-registry. Build the docker image referenced in the compose file
 
@@ -80,10 +81,11 @@ This is a simple Avro Schema file that describes the Order message structure.
 
 Following are the two types of data types supported in Avro:
 
-Primitive type: Primitive type are used to define the data types of fields in our message schema. All premetive types are supported in Avro. In our Order example, we are using string, int, float in the Order message schema.
+Primitive type: Primitive type are used to define the data types of fields in our message schema. All premetive types are supported in Avro. In our Order example, we are using string, int, float in the Avro message schema.
+
 Complex type: We could also use these six complex data types supported in Avro to define our schema: records, enums, arrays, maps, unions and fixed. In our Order example, we are using the 'record' complex type to define order message.
 
-Once we define the schema, we then generate the Java source code from the schema using the maven plugin:
+Once we define the schema, we then generate the Java source code using the maven plugin:
 ```
 <plugin>
 	<groupId>org.apache.avro</groupId>
@@ -104,11 +106,18 @@ Once we define the schema, we then generate the Java source code from the schema
 </plugin>
 			
 ```
-The following command in maven lifecycle phase will do the trick and put the generated classes in : spring-kafka-registry\target\generated\avro\
+The following command in maven lifecycle phase will do the trick and put the generated classes in : 
+spring-kafka-registry\target\generated\avro\
 
 ```
 mvn generate-sources
 ```
+
+The generated source code comes in very handy to process messages in our application.
+Let's see how this is done.
+Opent the maind application class SpringKafkaRegistryApplication.java from:
+spring-kafka-registry\src\main\java\com\sunilvb\demo
+Notice that   
 
 We can then compile and build the jar file and create a docker container as below:
 
