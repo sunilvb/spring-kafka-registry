@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.sunilvb.demo.SpringKafkaRegistryApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.853 s - in com.sunilvb.demo.SpringKafkaRegistryApplicationTests

@@ -309,10 +309,11 @@ You should see something similar to the output below :
 
 ## Built With
 
-* [Spring Boot](https://projects.spring.io/spring-boot/) - The web framework used
-* [Apache Kafka](https://maven.apache.org/) - Dependency Management
-* [Confluent Schema Registry](https://maven.apache.org/) - Dependency Management
+* [Spring Boot](https://projects.spring.io/spring-boot/) - The Web Framework for Java based Microservices
+* [Apache Kafka](https://maven.apache.org/) - Message Broker and Streaming Platform
+* [Confluent Schema Registry](https://maven.apache.org/) - Schema Registry Module
 * [Maven](https://maven.apache.org/) - Dependency Management
+* [Docker and Docker Compose](https://www.docker.com/) - Containerization
 
 ## Contributing
 
