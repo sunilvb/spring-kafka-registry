@@ -44,6 +44,8 @@ For this tutorial we will be using the open source components of confluent platf
 
 -Download and install JDK 1.8 from http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
+-Download and install Docker and Docker Compose for your OS.
+
 Clone this repo to your machine and change directory to spring-kafka-registry. Build the docker image referenced in the compose file
 
 ```
@@ -155,6 +157,9 @@ mvn generate-sources
 ```
 
 The generated source code comes in very handy to process messages in our application.
+
+###Spring Boot Application
+
 Now let's see how this is done.
 Open the main application class defined in the source file SpringKafkaRegistryApplication.java from following location:
 
@@ -180,8 +185,9 @@ The KafkaAvroSerializer class is responsible for serializing the message in to A
 
 After setting all the needed properties we then create an instance of the KafkaProducer. 
 
-We then build the Order object using the generated class and send it off to the topic.
+We then build the Order object using the generated class and send it off to the Kafka topic.
 
+The setter methods in the generated Order class come in very handy. 
 ```
 ...
 Producer<String, Order> producer = new KafkaProducer<String, Order>(properties);
@@ -215,10 +221,11 @@ producer.flush();
 producer.close();
 ...
 ``` 
+		
 
+### Package the Spring Boot jar and create the docker image
 
-We pass the 			
-We can then compile and build the jar file and create a docker container as below:
+To compile and package the jar file and create a docker image, run the following commands shown below:
 
 ```
 mvn package
@@ -227,141 +234,77 @@ mv target/*.jar app.jar
  
 docker build -t spring-kafka-registry .
 ```
-### Import the jar into your local Maven repo
-
-Use the following command to import the SDK jar file into your Maven repo:
-
-```
-mvn install:install-file -Dfile=/<path to the sdk jar> -DgroupId=<package name> -DartifactId=<packageId> -Dversion=<version> -Dpackaging=jar
-
-```
-
-For example :
-
-```
-mvn install:install-file -Dfile=/Users/sunil_vishnubhotla/Downloads/stellar-sdk.jar -DgroupId=com.stellar.code -DartifactId=stellar -Dversion=0.1.14 -Dpackaging=jar
-
-```
 
 
-Then add the dependancy in your pom.xml file like so :
+### Running all the docker containers together
 
-```
-<dependency>
-     <groupId>com.stellar.code</groupId>
-     <artifactId>stellar</artifactId>
-     <version>0.1.14</version>
-</dependency>
-
-```
-
-Note: this dependancy is already added in the source pom.xml.
-
-### Installing and Running
-
-To run the sample install Java 1.8+, Maven,  MySql for your OS and download the code. 
-Edit the application.properties file to setup your DB connection.
+To run the sample make sure you have installed Docker and Docker Compose for your OS. 
 
 And simply run this command in the source root
 
 
 ```
-mvn springboot:run
+docker-compose up -d
 ```
+you should see all the containers come up as shown below:
+
+![alt text](docs/output1.jpg)
 
 And point your browser to 
 
 ```
-http://localhost:8080
+http://localhost:8888/oreder?name=<name of your kafka topic>
 ```
-
-login screen :
-
-![alt text](docs/login.png)
-
-Asuming your MySql DB is up and running, you should see the login screen. As a first time user, go ahead and click the "Join us" link to create a new user with your email and a password. Use these credentials to login after you finish registering. 
-
-### User Registration
-
-The following method in the is used to accomplish this in LoginController.java :
-```
-...
-@RequestMapping(value = "/registration", method = RequestMethod.POST)
-public ModelAndView createNewUser(@Valid User user, BindingResult bindingResult) {
-	ModelAndView modelAndView = new ModelAndView();
-	User userExists = userService.findUserByEmail(user.getEmail());
-	if (userExists != null) {
-		bindingResult.rejectValue("email", "error.user",
-					"There is already a user registered with the email provided");
-	}
-	if (bindingResult.hasErrors()) {
-		System.out.println("There was an error...");
-		modelAndView.setViewName("registration");
-	} else {
-		userService.saveUser(user);
-		modelAndView.addObject("successMessage", "User registered successfully. Please login.");
-		modelAndView.addObject("user", new User());
-		modelAndView.setViewName("login");
-
-	}
-	return modelAndView;
-}
-...
-```
-### Creating a Stellar account
-We will use the following two properties for communicating with the network :
-```
-@Value("${stellar.network.url}")
-private String network;
-
-@Value("${stellar.network.friendbot}")
-private String friendbot;
-```
-![alt text](docs/home.png)
-
-After you login click the "Open a New Account" link to create a new account associated with your User credentials.
-
-![alt text](docs/create.png)
-
-Give your account a nick name and click the Open Account button.
-
-At this point the AccountService is called to create a new account as shown below:
+or use curl to access the url as shown below :
 
 ```
-...
-KeyPair pair = KeyPair.random();
-String seed = new String(pair.getSecretSeed());
-key = pair.getAccountId();
-String friendbotUrl = String.format(friendbot, key);
-
-response = new URL(friendbotUrl).openStream();
-String body = new Scanner(response, "UTF-8").useDelimiter("\\A").next();
-System.out.println("New Stellar account created :)\n" + body);
-
-Account acc = new Account(key, seed, name, email);
-accountRepository.save(acc);
-...
+curl localhost:8888/oreder?name=<name of your kafka topic>
 ```
-We start by calling the Stellar SDK's KeyPair object's random() method that generates and assigns our accout a unique key pair.
-Each account has a privete key also called the secret seed and a public key that is assigned when you create a Stellsr account.
-As with any blockchain implementation, you need a private key to sign all your transactions to ensure they orignate from you and that  no one else can tamper with it. You do not share your privete key(hence the word private) with anyone but you do send the public key along with the transaction for the system to verify it was you who started the transaction and that you have the needed funds to carry out the transaction.
 
-We then seed this account using the Stellar's Friendbot service to give us 10,000 XLMs.
+This will produce the Order message and serialize it into Avro format and pushed in to the Kafka topic as a binary message.
 
-Note down your account information as it is printed on the console output.
-
-![alt text](docs/debug.png)
-You can then see this account information live on  https://stellarchain.io/
-
-![alt text](docs/stellarchain.png)
-Make sure you switch the network to TESTNET as shown and then enter the account number. 
-Then enter to see 10,000 Lumens and their equivalent values in othe currencies. Know that this is just testing money and not real :-)
+You should see the following output in your browser window or the terminal if you user curl to confirm the message was poseted to Kafka topic: 
 
 
-### Querying the balance
+### Checking the message in Kafka Avro Consumer
 
-After we create and seed the account we can query the network to get the upto date account details:
+To consume the mesasges and Deserialise the binary message back into a proper Order object we can run the built in command line utility.
 
+Run the following commands :
+
+
+```
+docker-compose exec schema-registry bash
+```
+This will put you into the Schema Registry conatainer where you can execute the command line Avro consumer to see your message. 
+
+Make sure you pass the same topic name that you used in the Kafka Avro Producer above.
+
+```
+kafka-avro-console-consumer --topic <name of your kafka topic> \
+    --bootstrap-server broker:9092 \
+    --property schema.registry.url=http://schema-registry:8081 \
+    --from-beginning
+```
+You should see a similar out put in your terminal window :
+
+![alt text](docs/output1.jpg) 
+
+### Bring down the application and containers
+```
+docker-compose down
+```
+Stops containers and removes containers, networks, volumes, and images created by up.
+
+By default, the only things removed are:
+
+Containers for services defined in the Compose file
+Networks defined in the networks section of the Compose file
+The default network, if one is used
+
+You should see something similar to the output below : 
+
+![alt text](docs/output2.jpg) 
 
 
 ## Built With

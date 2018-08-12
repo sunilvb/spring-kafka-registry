@@ -34,7 +34,7 @@ public class SpringKafkaRegistryApplication {
 	}
 	
 	@RequestMapping("/orders")
-	public String doIt(@RequestParam(value="name", defaultValue="Order-avro") String name, @RequestParam(value="count", defaultValue="1") String count)
+	public String doIt(@RequestParam(value="name", defaultValue="Order-avro") String name)
 	{
 		
 		String ret=name;
