@@ -77,7 +77,8 @@ Open the order.avsc file from src\main\resources\avro
 }
 ```
 This is a simple Avro Schema file that describes the Order message structure.
-Following are the two types of data supported in Avro:
+
+Following are the two types of data types supported in Avro:
 
 Primitive type: Primitive type are used to define the data types of fields in our message schema. All premetive types are supported in Avro. In our Order example, we are using string, int, float in the Order message schema.
 Complex type: We could also use these six complex data types supported in Avro to define our schema: records, enums, arrays, maps, unions and fixed. In our Order example, we are using the 'record' complex type to define order message.
@@ -85,22 +86,22 @@ Complex type: We could also use these six complex data types supported in Avro t
 Once we define the schema, we then generate the Java source code from the schema using the maven plugin:
 ```
 <plugin>
-				<groupId>org.apache.avro</groupId>
-				<artifactId>avro-maven-plugin</artifactId>
-				<version>${avro.version}</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>schema</goal>
-						</goals>
-						<configuration>
-							<sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
-							<outputDirectory>${project.build.directory}/generated/avro</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+	<groupId>org.apache.avro</groupId>
+	<artifactId>avro-maven-plugin</artifactId>
+	<version>${avro.version}</version>
+	<executions>
+		<execution>
+			<phase>generate-sources</phase>
+			<goals>
+				<goal>schema</goal>
+			</goals>
+			<configuration>
+				<sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+				<outputDirectory>${project.build.directory}/generated/avro</outputDirectory>
+			</configuration>
+		</execution>
+	</executions>
+</plugin>
 			
 ```
 The following command in maven lifecycle phase will do the trick and put the generated classes in : spring-kafka-registry\target\generated\avro\
