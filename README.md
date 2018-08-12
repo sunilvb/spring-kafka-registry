@@ -1,5 +1,5 @@
 # Spring Boot + Kafka + Schema Registry - Tutorial
-
+![alt text](docs/SchemaRegistry.jpg)
 ## What is Schema Registry?
 
 According to [Confluent.io](https://docs.confluent.io/current/schema-registry/docs/index.html) : The Schema Registry stores a versioned history of all schemas and allows for the evolution of schemas according to the configured compatibility settings and expanded Avro support.
@@ -31,8 +31,6 @@ The following topics are covered in this tutorial:
 5. View the messages from a Kafka Avro Consumer
 
 ## Getting Started
-
-![alt text](docs/SchemaRegistry.jpg)
 
 In our sample application we will build a Spring Boot microservice that produces messages and uses Avro to serialize and push them into Kafka.
 For this tutorial we will be using the open source components of confluent platform. All of our microservices and infrastructure components will be dockerized and run using docker-compose.  
@@ -288,6 +286,8 @@ kafka-avro-console-consumer --topic <name of your kafka topic> \
 You should see a similar output in your browser window (edited for brevity):
 
 ![alt text](docs/output4.jpg) 
+
+That concludes our sample application.
 
 ### Bring down the application and containers
 ```
