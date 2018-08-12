@@ -53,7 +53,9 @@ cd spring-kafka-registry
 
 
 ```
-First things first. Let's look at the maven dependencies that are perticularly important in this sample.
+First things first. 
+
+Let's open the pom.xml file and look at the maven dependencies that are perticularly important in this sample.
 
 The two important sections that make all the magic happen are the Spring Kafka related dependencies and the Avro related dependencies as shown below :
 ```
@@ -120,7 +122,7 @@ Complex type: We could also use these six complex data types supported in Avro t
 
 Once we define the schema, we then generate the Java source code using the maven plugin.
 
-Let's open the pom.xml file from the root of the project 
+Let's look at the pom.xml file once again 
 
 ```
 <plugin>
@@ -144,7 +146,7 @@ Let's open the pom.xml file from the root of the project
 ```
 Notice the sourceDirectory and outputDirectory locations defiled in the configuration section of the avro-maven-plugin
 
-The following command in maven lifecycle phase will do the trick and put the generated classes in : 
+The following command in maven lifecycle phase will do the trick and put the generated classes in our outputDirectory: 
 
 spring-kafka-registry\target\generated\avro\
 
@@ -154,12 +156,13 @@ mvn generate-sources
 
 The generated source code comes in very handy to process messages in our application.
 Now let's see how this is done.
-Opent the maind application class defined in the source file SpringKafkaRegistryApplication.java from following location:
+Open the main application class defined in the source file SpringKafkaRegistryApplication.java from following location:
 
 spring-kafka-registry\src\main\java\com\sunilvb\demo
 
 Notice that we properties that are defined to ensure we are able to interact with the Kafka and Schema Registry instances  
 ```
+...
 Properties properties = new Properties();
 // Kafka Properties
 properties.setProperty("bootstrap.servers", bootstrap);
@@ -169,8 +172,50 @@ properties.setProperty("retries", "10");
 properties.setProperty("key.serializer", StringSerializer.class.getName());
 properties.setProperty("value.serializer", KafkaAvroSerializer.class.getName());
 properties.setProperty("schema.registry.url", registry);
+...
 ```
 In addition to the bootstrap server and the schema registry url, we are also setting the serializer classes for key and value properties.
+
+The KafkaAvroSerializer class is responsible for serializing the message in to Avro format. 
+
+After setting all the needed properties we then create an instance of the KafkaProducer. 
+
+We then build the Order object using the generated class and send it off to the topic.
+
+```
+...
+Producer<String, Order> producer = new KafkaProducer<String, Order>(properties);
+
+Order order = Order.newBuilder()
+		.setOrderId("OId234")
+		.setCustomerId("CId432")
+		.setSupplierId("SId543")
+		.setItems(4)
+		.setFirstName("Sunil")
+		.setLastName("V")
+		.setPrice(178f)
+		.setWeight(75f)
+		.build();
+
+ProducerRecord<String, Order> producerRecord = new ProducerRecord<String, Order>(topic, order);
+
+
+producer.send(producerRecord, new Callback() {
+	@Override
+	public void onCompletion(RecordMetadata metadata, Exception exception) {
+		if (exception == null) {
+			logger.info(metadata); 
+		} else {
+			logger.error(exception.getMessage());
+		}
+	}
+});
+
+producer.flush();
+producer.close();
+...
+``` 
+
 
 We pass the 			
 We can then compile and build the jar file and create a docker container as below:
