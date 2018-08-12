@@ -285,7 +285,7 @@ kafka-avro-console-consumer --topic <name of your kafka topic> \
     --property schema.registry.url=http://schema-registry:8081 \
     --from-beginning
 ```
-You should see a similar output in your browser window :
+You should see a similar output in your browser window (edited for brevity):
 
 ![alt text](docs/output4.jpg) 
 
