@@ -53,9 +53,9 @@ cd spring-kafka-registry
 ```
 First things first. 
 
-Let's open the pom.xml file and look at the maven dependencies that are perticularly important in this sample.
+Let's open the pom.xml file and look at the maven dependencies that are particularly important in this sample.
 
-The two important sections that help in makeing the magic happen are the Spring Kafka related dependencies and the Avro related dependencies as shown below :
+The two important sections that help in making the magic happen are the Spring Kafka related dependencies and the Avro related dependencies as shown below :
 ```
 <!-- spring-kafka dependencies -->
 <dependency>
